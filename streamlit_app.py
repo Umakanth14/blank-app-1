@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# coding: utf-8
+
 import streamlit as st
 import google.generativeai as genai
 import os
@@ -6,10 +9,10 @@ from dotenv import load_dotenv
 import json
 
 # Load environment variables
-load_dotenv()
+load_dotenv()  
 
 # Configure the API key for the Generative AI model
-genai.configure(api_key=os.getenv("AIzaSyD-gKInDbKdlsrb4fLCQQ2aPPkFTTJQj5U"))  # Replace with your API key
+genai.configure(api_key=os.getenv("GENAI_API_KEY"))  # Replace with your API key
 
 # Function to get AI response based on the resume and job description
 def get_gemini_response(input):
@@ -28,7 +31,7 @@ def input_pdf_text(uploaded_file):
 
 # Prompt template for Generative AI model
 input_prompt = """
-Hey Act Like a skilled or very experienced ATS (Application Tracking System)
+Hey Act Like a skilled or very experienced Talent Smart Sphere
 with a deep understanding of the tech field, software engineering, data science, data analytics,
 and big data engineering. Your task is to evaluate the resume based on the given job description.
 You must consider that the job market is very competitive, and you should provide 
@@ -41,89 +44,30 @@ I want the response in one single string having the structure:
 {{"JD Match":"%","MissingKeywords":[],"Profile Summary":""}}
 """
 
-# --- Add Custom CSS for Professional Styling and Hover Effects with Angular Cuts ---
-st.markdown("""
+# Streamlit app UI
+st.title("Talent Smart Sphere")
+st.text("Enhance Your Profile Through Talent Smart")
+
+# Add CSS for button styling
+st.markdown(
+    """
     <style>
-    /* Overall body and app container */
-    body {
-        background-color: #EFF5F5; /* Soft teal background for the entire app */
-    }
-    .stApp {
-        background-color: #FFFFFF; /* White content background */
-        padding: 20px;
-        border-radius: 20px;
-    }
-
-    /* Title styling */
-    h1 {
-        color: #0D3B66; /* Deep blue title */
-        font-family: 'Arial', sans-serif;
-    }
-
-    /* Card-style container with hover effect and angular cut */
-    .css-1lcbmhc {
-        background-color: #FFFFFF; /* White background for the cards */
-        border-radius: 15px;
-        padding: 20px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        transition: all 0.3s ease-in-out;
-        position: relative;
-        overflow: hidden;
-    }
-
-    /* Hover effect for angular cut and lighting */
-    .css-1lcbmhc::after {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 0;
-        height: 0;
-        border-top: 100px solid #0D3B66; /* Deep blue angular cut */
-        border-right: 100px solid transparent;
-        transition: all 0.3s ease-in-out;
-        opacity: 0.8;
-    }
-
-    .css-1lcbmhc:hover::after {
-        width: 100%;
-        height: 100%;
+    .stButton>button {
+        background-color: #4CAF50; /* Green */
+        color: white;
         border: none;
-        background: rgba(13, 59, 102, 0.1); /* Soft blue lighting on hover */
+        border-radius: 5px;
+        padding: 10px 20px;
+        cursor: pointer;
+        font-size: 16px;
     }
-
-    .css-1lcbmhc:hover {
-        box-shadow: 0 6px 15px rgba(13, 59, 102, 0.2); /* Shadow increases on hover */
-        transform: scale(1.02); /* Slight scale-up effect */
-    }
-
-    /* Styling for Subheaders */
-    h3 {
-        font-family: 'Arial', sans-serif;
-        color: #0D3B66;
-    }
-
-    /* Tabs styling */
-    .stTabs [role="tablist"] button {
-        color: #0D3B66;
-        font-weight: bold;
-        transition: background-color 0.3s ease;
-    }
-
-    .stTabs [role="tablist"] button:hover {
-        background-color: #EFF5F5; /* Soft teal background on hover */
-    }
-
-    /* Colors for highlighted sections */
-    .stTabs [role="tabpanel"] h3 {
-        color: #007BFF; /* Soft blue for headings inside tabs */
+    .stButton>button:hover {
+        background-color: #45a049; /* Darker green */
     }
     </style>
-    """, unsafe_allow_html=True)
-
-# Streamlit app UI
-st.title("Talent Sphere")
-st.text("Enhance Your Profiles for Talent Smart Results")
+    """,
+    unsafe_allow_html=True
+)
 
 # Option to paste or upload multiple Job Descriptions
 st.header("Job Descriptions")
@@ -152,7 +96,7 @@ submit = st.button("Submit")
 if submit:
     if uploaded_files and jds:
         for uploaded_file in uploaded_files:
-            st.write(f"Processing resume: {uploaded_file.name}")
+            st.write(f"Processing Job Application Documents: {uploaded_file.name}")
             
             # Extract resume text from PDF
             resume_text = input_pdf_text(uploaded_file)
@@ -177,23 +121,21 @@ if submit:
                 profile_summary = response_json.get("Profile Summary", "")
 
                 # Dynamic Tabs for viewing results
-                with st.expander(f"Details for JD {idx + 1}", expanded=False):
-                    tab1, tab2, tab3 = st.tabs(["JD Match", "Missing Keywords", "Profile Summary"])
+                tab1, tab2, tab3 = st.tabs(["JD Match", "Missing Keywords", "Profile Summary"])
 
-                    with tab1:
-                        st.markdown(f"<h3 style='color:green;'>JD Match: {jd_match}%</h3>", unsafe_allow_html=True)
+                with tab1:
+                    st.markdown(f"<h3 style='color:green;'>JD Match: {jd_match}</h3>", unsafe_allow_html=True)
 
-                    with tab2:
-                        if missing_keywords:
-                            st.markdown("<h3 style='color:red;'>Missing Keywords</h3>", unsafe_allow_html=True)
-                            st.write(", ".join(missing_keywords))
-                        else:
-                            st.markdown("<h3 style='color:green;'>No Missing Keywords!</h3>", unsafe_allow_html=True)
+                with tab2:
+                    if missing_keywords:
+                        st.markdown("<h3 style='color:red;'>Missing Keywords</h3>", unsafe_allow_html=True)
+                        st.write(", ".join(missing_keywords))
+                    else:
+                        st.markdown("<h3 style='color:green;'>No Missing Keywords!</h3>", unsafe_allow_html=True)
 
-                    with tab3:
-                        st.markdown("<h3 style='color:blue;'>Profile Summary</h3>", unsafe_allow_html=True)
-                        st.write(profile_summary)
+                with tab3:
+                    st.markdown("<h3 style='color:blue;'>Profile Summary</h3>", unsafe_allow_html=True)
+                    st.write(profile_summary)
 
     else:
         st.error("Please upload both resumes and job descriptions to proceed.")
-
